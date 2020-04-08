@@ -811,12 +811,18 @@ class Hand
    {
       try
       {
+      // TODO: First attempt to trail down this bug
+         System.out.println("PASSING: myCards is size" + myCards.length);
+         System.out.println("and I am trying to get a card in position " + k);
          return myCards[k];
       } catch (Exception ex)
       {
          // expect out of bounds or invalid parameter exception
          // return card with invalid data to set error flag (per instructions)
          // There is no other way to set the error flag
+      // TODO: First attempt to trail down this bug
+         System.out.println("FAILURE: myCards is size" + myCards.length);
+         System.out.println("and I am trying to get a card in position " + k);
          return new Card('*', Card.Suit.spades);
       }
    }
