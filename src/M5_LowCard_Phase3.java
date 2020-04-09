@@ -21,6 +21,10 @@ public class M5_LowCard_Phase3 {
    static JLabel[] humanLabels = new JLabel[NUM_CARDS_PER_HAND];
    static JLabel[] playedCardLabels = new JLabel[NUM_PLAYERS];
    static JLabel[] playLabelText = new JLabel[NUM_PLAYERS];
+   static JLabel[] playerWinnings = new JLabel[NUM_CARDS_PER_HAND];
+   static JLabel[] computerWinnings = new JLabel[NUM_CARDS_PER_HAND];
+   static int rounds =  NUM_CARDS_PER_HAND;
+   static boolean playFlag = false
    
 
    public static void main(String[] args) {
@@ -56,6 +60,41 @@ public class M5_LowCard_Phase3 {
          // add labels to panels
          myCardTable.pnlHumanHand.add(humanLabels[i]);
       }
+      
+      JButton b = new JButton("Play");
+      //TODO: need to assign an actual hand with cards to Computer so that you
+      //can refereance the vaules as I did with the player hand.
+      //Also you need to compare those values to each other and then determin 
+      //who wins the hand.
+      b.addActionListener(new ActionListener() 
+      {
+         public void actionPerformed(ActionEvent e) 
+         {            
+            rounds--;
+            if(playFlag) 
+            {
+               if(GUICard.valueAsInt(LowCardGame.getHand(1).inspectCard(rounds)) >
+               GUICard.valueAsInt(LowCardGame.getHand(0).inspectCard(rounds))) 
+               {
+               }
+            if(rounds >= 0) 
+            {
+               myCardTable.pnlPlayArea.remove(playLabelText[0]);
+               myCardTable.pnlPlayArea.add(computerLabels[rounds]);
+               myCardTable.pnlComputerHand.remove(computerLabels[rounds]);
+               myCardTable.pnlPlayArea.remove(playLabelText[1]);
+               myCardTable.pnlPlayArea.add(humanLabels[rounds]);
+               myCardTable.pnlHumanHand.remove(humanLabels[rounds]);
+            }
+            myCardTable.repaint();
+            myCardTable.setVisible(true);
+         } 
+      });
+
+      
+      myCardTable.pnlHumanHand.add(b);
+      
+      
       // Next is the Computer
       for(int i = 0; i < NUM_CARDS_PER_HAND; i++) {
          computerLabels[i] = (new JLabel(GUICard.getBackCardIcon()));
