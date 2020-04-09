@@ -9,6 +9,8 @@
  */
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -24,7 +26,7 @@ public class M5_LowCard_Phase3 {
    static JLabel[] playerWinnings = new JLabel[NUM_CARDS_PER_HAND];
    static JLabel[] computerWinnings = new JLabel[NUM_CARDS_PER_HAND];
    static int rounds =  NUM_CARDS_PER_HAND;
-   static boolean playFlag = false
+   static boolean playFlag = false;
    
 
    public static void main(String[] args) {
@@ -73,8 +75,8 @@ public class M5_LowCard_Phase3 {
             rounds--;
             if(playFlag) 
             {
-               if(GUICard.valueAsInt(LowCardGame.getHand(1).inspectCard(rounds)) >
-               GUICard.valueAsInt(LowCardGame.getHand(0).inspectCard(rounds))) 
+               //if(GUICard.valueAsInt(LowCardGame.getHand(1).inspectCard(rounds)) >
+               //GUICard.valueAsInt(LowCardGame.getHand(0).inspectCard(rounds))) 
                {
                }
             if(rounds >= 0) 
@@ -89,7 +91,7 @@ public class M5_LowCard_Phase3 {
             myCardTable.repaint();
             myCardTable.setVisible(true);
          } 
-      });
+      }});
 
       
       myCardTable.pnlHumanHand.add(b);
