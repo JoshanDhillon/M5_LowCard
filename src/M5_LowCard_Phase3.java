@@ -23,8 +23,9 @@ public class M5_LowCard_Phase3 {
    static JLabel[] humanLabels = new JLabel[NUM_CARDS_PER_HAND];
    static JLabel[] playedCardLabels = new JLabel[NUM_PLAYERS];
    static JLabel[] playLabelText = new JLabel[NUM_PLAYERS];
-   static JLabel[] playerWinnings = new JLabel[NUM_CARDS_PER_HAND];
-   static JLabel[] computerWinnings = new JLabel[NUM_CARDS_PER_HAND];
+   static JLabel[] computerCardBacks= new JLabel[NUM_CARDS_PER_HAND];
+   static int playerScore = 0;
+   static int compScore = 0;
    static int rounds =  NUM_CARDS_PER_HAND;
    static boolean playFlag = false;
    
@@ -56,7 +57,8 @@ public class M5_LowCard_Phase3 {
       playLabelText[1] = new JLabel("Player 1", JLabel.CENTER);   
       
       // Start with the Player
-      for(int i = 0; i < NUM_CARDS_PER_HAND; i++) {
+      for(int i = 0; i < NUM_CARDS_PER_HAND; i++) 
+      {
          humanLabels[i] = new JLabel(GUICard.getIcon(LowCardGame.getHand(1)
                .inspectCard(i)));
          // add labels to panels
@@ -64,34 +66,82 @@ public class M5_LowCard_Phase3 {
       }
       
       JButton b = new JButton("Play");
-      //TODO: need to assign an actual hand with cards to Computer so that you
-      //can refereance the vaules as I did with the player hand.
-      //Also you need to compare those values to each other and then determin 
-      //who wins the hand.
+
       b.addActionListener(new ActionListener() 
       {
          public void actionPerformed(ActionEvent e) 
-         {            
+         {     
             rounds--;
-            if(playFlag) 
-            {
-               //if(GUICard.valueAsInt(LowCardGame.getHand(1).inspectCard(rounds)) >
-               //GUICard.valueAsInt(LowCardGame.getHand(0).inspectCard(rounds))) 
-               {
-               }
-            if(rounds >= 0) 
+            
+            if(!playFlag) 
             {
                myCardTable.pnlPlayArea.remove(playLabelText[0]);
-               myCardTable.pnlPlayArea.add(computerLabels[rounds]);
-               myCardTable.pnlComputerHand.remove(computerLabels[rounds]);
                myCardTable.pnlPlayArea.remove(playLabelText[1]);
+               myCardTable.pnlPlayArea.add(computerLabels[rounds]);
+               myCardTable.pnlComputerHand.remove(computerCardBacks[rounds]);
                myCardTable.pnlPlayArea.add(humanLabels[rounds]);
                myCardTable.pnlHumanHand.remove(humanLabels[rounds]);
+            }   
+            
+            if(playFlag && rounds >= 0) 
+            {
+               myCardTable.pnlPlayArea.remove(computerLabels[rounds+1]);
+               myCardTable.pnlPlayArea.add(computerLabels[rounds]);
+               myCardTable.pnlComputerHand.remove(computerCardBacks[rounds]);
+               
+               myCardTable.pnlPlayArea.remove(humanLabels[rounds + 1]);
+               myCardTable.pnlPlayArea.add(humanLabels[rounds]);
+               myCardTable.pnlHumanHand.remove(humanLabels[rounds]);
+            }  
+            
+            playFlag = true;
+            
+            if(rounds >= 0) {
+          
+               if(GUICard.valueAsInt(LowCardGame.getHand(1).inspectCard(rounds)) >
+               GUICard.valueAsInt(LowCardGame.getHand(0).inspectCard(rounds))) 
+               {
+                  playerScore++;
+               }
+               
+               if(GUICard.valueAsInt(LowCardGame.getHand(1).inspectCard(rounds)) <
+               GUICard.valueAsInt(LowCardGame.getHand(0).inspectCard(rounds)))
+               {
+                  compScore++;
+               }
             }
+            
+            if(rounds < 0)
+            {
+               myCardTable.pnlPlayArea.remove(computerLabels[rounds+1]);
+               myCardTable.pnlPlayArea.remove(humanLabels[rounds + 1]);
+               if(compScore > playerScore) 
+               {
+                  myCardTable.pnlPlayArea.add(new JLabel(Integer.
+                        toString(compScore) + " Winner", JLabel.CENTER));
+                  myCardTable.pnlPlayArea.add(new JLabel(Integer.
+                        toString(playerScore), JLabel.CENTER));
+               }
+               if(compScore < playerScore) 
+               {
+                  myCardTable.pnlPlayArea.add(new JLabel(Integer.
+                        toString(compScore), JLabel.CENTER));
+                  myCardTable.pnlPlayArea.add(new JLabel(Integer.
+                        toString(playerScore) + " Winner", JLabel.CENTER));
+               }
+               if(compScore == playerScore)
+               {
+                  myCardTable.pnlPlayArea.add(new JLabel(Integer.
+                        toString(compScore) + "Tie", JLabel.CENTER));
+                  myCardTable.pnlPlayArea.add(new JLabel(Integer.
+                        toString(playerScore) + "Tie", JLabel.CENTER));
+               }
+            }
+
             myCardTable.repaint();
             myCardTable.setVisible(true);
          } 
-      }});
+      });
 
       
       myCardTable.pnlHumanHand.add(b);
@@ -99,9 +149,11 @@ public class M5_LowCard_Phase3 {
       
       // Next is the Computer
       for(int i = 0; i < NUM_CARDS_PER_HAND; i++) {
-         computerLabels[i] = (new JLabel(GUICard.getBackCardIcon()));
+         computerLabels[i] = (new JLabel(GUICard.getIcon(LowCardGame.getHand(0)
+               .inspectCard(i))));
          // add labels to panels
-         myCardTable.pnlComputerHand.add(computerLabels[i]);
+         computerCardBacks[i] = new JLabel(GUICard.getBackCardIcon());
+         myCardTable.pnlComputerHand.add(computerCardBacks[i]);
       }
       
       // add two random cards in the play region (player1 + cpu)
@@ -248,7 +300,7 @@ class GUICard {
       return iconBack;
    }
    
-   private static int suitAsInt(Card card)
+   static int suitAsInt(Card card)
    {
       Card.Suit suit = card.getSuit();
       
@@ -266,7 +318,7 @@ class GUICard {
       }
    }
 
-   private static int valueAsInt(Card card)
+   static int valueAsInt(Card card)
    {
       char value = card.getValue();
       switch(value) {
