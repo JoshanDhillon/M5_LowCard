@@ -58,9 +58,7 @@ public class M5_LowCard_Phase3 {
       }
       
       // TODO: TEST for Number Format Exception
-      System.out.println(LowCardGame.getHand(1));
-      System.out.println(LowCardGame.getHand(1).inspectCard(2).getValue());
-      System.out.println(LowCardGame.getHand(1).inspectCard(2).getSuit());
+      //System.out.println(humanLabels.);
       
       
       // Next is the Computer
@@ -190,6 +188,7 @@ class GUICard {
                   concat(turnIntIntoCardValue(value)).
                   concat(turnIntIntoCardSuit(suit)).
                   concat(imageExtension);
+            System.out.println("loading:" + imageFile + " into value:" + value +" suit:" + suit);
             iconCards[value][suit] = new ImageIcon(imageFile);
          }
       }
@@ -205,6 +204,8 @@ class GUICard {
    static public Icon getIcon(Card card) {
       // This is an opportunity to load the card icons
       loadCardIcons();
+      System.out.println(card.toString());
+      System.out.println(valueAsInt(card) + ":" + suitAsInt(card));
       return iconCards[valueAsInt(card)][suitAsInt(card)];
    }
    
@@ -237,17 +238,17 @@ class GUICard {
       char value = card.getValue();
       switch(value) {
       case 'A':
-         return 1;
+         return 0;
       case 'T':
-         return 10;
+         return 9;
       case 'J':
-         return 11;
+         return 10;
       case 'Q':
-         return 12;
+         return 11;
       case 'K':
-         return 13;
+         return 12;
       case 'X':
-         return 14;
+         return 13;
       default:
          return Integer.parseInt(String.valueOf(value));
       }
@@ -391,7 +392,7 @@ class Card
 
       // Return true if value is a valid value else false (added 'Q')
       return ((value >= '2' && value <= '9') || value == 'A' || value == 'K'
-            || value == 'Q' || value == 'J' || value == 'T');
+            || value == 'Q' || value == 'J' || value == 'T' || value == 'X');
    }
 
    /**
@@ -429,22 +430,18 @@ class Card
 // Phase 3: The Deck Class
 class Deck
 {   
-   public final int MAX_CARDS = 312;
+   public final int MAX_CARDS = 6*(52+4); //
    private static Card[] masterPack = new Card[52 + 4]; // max deck + 4 jokers
    private Card[] cards;
    private int topCard;
+   private int numCards = 0;
 
    // Constructors
    public Deck(int numPacks)
    {
+      cards = new Card[MAX_CARDS];
       allocateMasterPack();
       init(numPacks);
-   }
-
-   public Deck()
-   {
-      allocateMasterPack();
-      cards = masterPack;
    }
 
    // Re-populates the cards[] with new cards. Resetting it to its original,
@@ -452,19 +449,20 @@ class Deck
    // Methods
    public void init(int numPacks)
    {
-      cards = new Card[numPacks * 56];
-      int index = 0;
-
-      while (numPacks > 0)
-      {
-         for (int i = 0; i < masterPack.length; i++)
-         {
-            cards[index] = masterPack[i];
-            index++;
-         }         
-         numPacks -= 1;
+      // If numPacks is less than one initialize one pack
+      if (numPacks < 1) {
+         numPacks = 1;
       }
-      topCard = 55; // 0-55
+      
+      for (int i = 0; i < numPacks; i++) {
+         for (int j = 0; j < masterPack.length; j++) {
+            cards[(i*masterPack.length)+j] = masterPack[j];
+            System.out.println(cards[numCards] + ":" + numCards);
+            numCards++;
+         }
+      }
+      topCard = numPacks * masterPack.length - 1;
+      System.out.println(cards[topCard]);
    }
 
    // Shuffles the cards[] by iterating through the cards[] and placing the
@@ -475,7 +473,7 @@ class Deck
       int num;
       Card tempCard;
 
-      for (int i = 0; i < cards.length; i++)
+      for (int i = 0; i < topCard; i++)
       {
          num = rand.nextInt(52);
          tempCard = cards[num];
@@ -487,16 +485,16 @@ class Deck
    // Returns the card at the 'topCard' position of the deck and simulates the
    // removal from the deck by incrementing topCard by 1. Also, returns
    // null if there are no more cards left.
-   public Card dealCard()
-   {
-      if (topCard == cards.length)
-      {
-         return null;
+   public Card dealCard() {
+      
+      if (topCard < 0) {
+         return new Card('*', Card.Suit.hearts);
       }
-
-      int temp = topCard;
-      topCard--;
-      return cards[temp];
+      else {
+         System.out.println("Dealing Card #:" + topCard);
+         System.out.println(cards[topCard]);
+         return cards[topCard--];
+      }      
    }
 
    public int getTopCard()
@@ -645,12 +643,8 @@ class Deck
     * return the number of cards remaining in the deck
     * @return
     */
-   int getNumCards() {
-      if(cards != null) {
-         return topCard + 1;   
-      }
-      
-      return 0;
+   public int getNumCards() {
+      return topCard;
    }
    
 }// end Deck Class
@@ -658,28 +652,25 @@ class Deck
 class Hand
 {
    // max number of cards in a deck, 1 person hand
-   public static final int MAX_CARDS = 52 + 4; // add 4 jokers
+   public static final int MAX_CARDS = 100; // add 4 jokers
 
-   Card[] myCards;
-   int numCards; // this could be a function that returns myCards.length()
-
+   private Card[] myCards;
+   private int numCards; 
+   
    public int getNumCards()
    {
       return numCards;
    }
 
-   Hand()
-   {
-      myCards = new Card[0];
-      numCards = 0;
+   public Hand() {
+      myCards = new Card[MAX_CARDS];
+      resetHand();
    }
 
    /**
     * removes all cards from the hand (simplest way possible)
     */
-   public void resetHand()
-   {
-      myCards = new Card[0];
+   public void resetHand() {
       numCards = 0;
    }
 
@@ -690,34 +681,20 @@ class Hand
     * @param card - the card to be stored in the array
     * @return - t/f if card take was successful
     */
-   public boolean takeCard(Card card)
-   {
-
+   public boolean takeCard(Card card) {
       // case for not adding a cards
-      if (card.getErrorFlag() || numCards == MAX_CARDS)
-      {
+      if (numCards >= MAX_CARDS || myCards[numCards] != null) {
          return false;
       }
-
-      // since we haven't learned about enummerated lists or vectors yet,
-      // we have to create the array again with an additional space
-      int currentLength = myCards.length;
-      int newLength = currentLength + 1;
-      Card[] currentHand = myCards.clone();
-      myCards = new Card[newLength];
-
-      // copy all cards, no references, the list can be deleted
-      for (int i = 0; i < currentLength; i++)
-      {
-         myCards[i] = new Card(currentHand[i].getValue(),
-               currentHand[i].getSuit());
+      else {
+         myCards[numCards] = new Card();
+         System.out.println(numCards);
+         myCards[numCards].set(card.getValue(), card.getSuit());
+         numCards++;
+         return true;
       }
-
-      // add the new card
-      myCards[newLength - 1] = new Card(card.getValue(), card.getSuit());
-      numCards++;
-
-      return true;
+      
+      
    }
 
    /**
@@ -809,21 +786,13 @@ class Hand
     */
    public Card inspectCard(int k)
    {
-      try
-      {
-      // TODO: First attempt to trail down this bug
-         System.out.println("PASSING: myCards is size" + myCards.length);
-         System.out.println("and I am trying to get a card in position " + k);
+      Card errorCard = new Card('*', Card.Suit.diamonds);
+      
+      if(k < 0 || k >= numCards) {
+         return errorCard;
+      }
+      else {
          return myCards[k];
-      } catch (Exception ex)
-      {
-         // expect out of bounds or invalid parameter exception
-         // return card with invalid data to set error flag (per instructions)
-         // There is no other way to set the error flag
-      // TODO: First attempt to trail down this bug
-         System.out.println("FAILURE: myCards is size" + myCards.length);
-         System.out.println("and I am trying to get a card in position " + k);
-         return new Card('*', Card.Suit.spades);
       }
    }
 
