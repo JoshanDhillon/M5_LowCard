@@ -56,11 +56,6 @@ public class M5_LowCard_Phase3 {
          // add labels to panels
          myCardTable.pnlHumanHand.add(humanLabels[i]);
       }
-      
-      // TODO: TEST for Number Format Exception
-      //System.out.println(humanLabels.);
-      
-      
       // Next is the Computer
       for(int i = 0; i < NUM_CARDS_PER_HAND; i++) {
          computerLabels[i] = (new JLabel(GUICard.getBackCardIcon()));
@@ -187,8 +182,7 @@ class GUICard {
             String imageFile = imageDirectory.
                   concat(turnIntIntoCardValue(value)).
                   concat(turnIntIntoCardSuit(suit)).
-                  concat(imageExtension);
-            System.out.println("loading:" + imageFile + " into value:" + value +" suit:" + suit);
+                  concat(imageExtension);;
             iconCards[value][suit] = new ImageIcon(imageFile);
          }
       }
@@ -204,8 +198,6 @@ class GUICard {
    static public Icon getIcon(Card card) {
       // This is an opportunity to load the card icons
       loadCardIcons();
-      System.out.println(card.toString());
-      System.out.println(valueAsInt(card) + ":" + suitAsInt(card));
       return iconCards[valueAsInt(card)][suitAsInt(card)];
    }
    
@@ -434,7 +426,6 @@ class Deck
    private static Card[] masterPack = new Card[52 + 4]; // max deck + 4 jokers
    private Card[] cards;
    private int topCard;
-   private int numCards = 0;
 
    // Constructors
    public Deck(int numPacks)
@@ -457,12 +448,9 @@ class Deck
       for (int i = 0; i < numPacks; i++) {
          for (int j = 0; j < masterPack.length; j++) {
             cards[(i*masterPack.length)+j] = masterPack[j];
-            System.out.println(cards[numCards] + ":" + numCards);
-            numCards++;
          }
       }
       topCard = numPacks * masterPack.length - 1;
-      System.out.println(cards[topCard]);
    }
 
    // Shuffles the cards[] by iterating through the cards[] and placing the
@@ -491,8 +479,6 @@ class Deck
          return new Card('*', Card.Suit.hearts);
       }
       else {
-         System.out.println("Dealing Card #:" + topCard);
-         System.out.println(cards[topCard]);
          return cards[topCard--];
       }      
    }
@@ -688,7 +674,6 @@ class Hand
       }
       else {
          myCards[numCards] = new Card();
-         System.out.println(numCards);
          myCards[numCards].set(card.getValue(), card.getSuit());
          numCards++;
          return true;
